@@ -1,0 +1,41 @@
+# Copyright (c) 2026, vaelin.zheng@gmail.com
+#
+# SPDX-License-Identifier: MIT
+
+# Kconfig for rts task
+
+menu "rts_task"
+config RTS_TASK_ENABLE
+    bool "Enable rts task framework"
+    default n
+    help
+        Enable this option to use the rts task framework.
+
+config RTS_TASK_TYPE_U32_IS_ATOMIC
+    bool "uint32_t type access is an atomic operation"
+    default y
+    depends on RTS_TASK_ENABLE
+    help
+        Enable this option if the target CPU can access a 32-bit variable
+        (the tick counter) atomically. For most 32-bit CPUs (like ARM Cortex-M),
+        this is true. For 8-bit or 16-bit CPUs, this is usually false.
+        If disabled, you must provide implementations for RTS_TASK_TICK_INT_ENABLE
+        and RTS_TASK_TICK_INT_DISABLE macros to protect tick access.
+
+config RTS_TASK_TICK_INT_HEADER_FILE
+    string "Header file for interrupt control macros"
+    depends on RTS_TASK_ENABLE && !RTS_TASK_TYPE_U32_IS_ATOMIC
+    default "driver_rts.h"
+    help
+        Specify the header file that defines the RTS_TASK_TICK_INT_ENABLE
+        and RTS_TASK_TICK_INT_DISABLE macros. This is required when 32-bit
+        tick access is not atomic.
+
+config RTS_TASK_UINTY_TEST
+    bool "Enable UINTY test"
+    default n
+    depends on RTS_TASK_ENABLE && RTS_LOG_ENABLE && RTS_UINTY_ENABLE
+    help
+        Enable this option to run unit tests for the RTS task framework.
+
+endmenu
